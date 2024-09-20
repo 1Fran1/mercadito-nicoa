@@ -41,7 +41,7 @@ export class Product {
 
 
   @Column('text', {nullable: true})
-  image: number;
+  image: string;
 
 
   @CreateDateColumn()
