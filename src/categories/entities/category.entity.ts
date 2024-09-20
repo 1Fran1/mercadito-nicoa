@@ -6,10 +6,16 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
   } from 'typeorm';
-  import { IsNotEmpty, Length } from 'class-validator';
+  import { IsEnum, IsNotEmpty, Length } from 'class-validator';
 import { Product } from 'src/products/entities/product.entity';
 
   
+// export enum CategoryStatus {
+//   ACTIVE = 'active',
+//   INACTIVE = 'inactive',
+// }
+
+
   @Entity()
   export class Category {
     @PrimaryGeneratedColumn()
@@ -36,5 +42,19 @@ import { Product } from 'src/products/entities/product.entity';
   
     @UpdateDateColumn()
     updated_at: Date;
+
+
+    @Column()//{
+    //   type: 'enum',
+    //   enum: CategoryStatus,
+    //   default: CategoryStatus.ACTIVE,
+    // }
+    // @IsEnum(CategoryStatus, { message: 'Status must be one of: active, inactive' })
+    @IsNotEmpty({ message: 'Status is required' })
+    status: number;
+
+
+
+
   }
   

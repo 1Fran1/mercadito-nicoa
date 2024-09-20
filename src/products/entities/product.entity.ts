@@ -7,9 +7,17 @@ import {
   UpdateDateColumn,
   JoinColumn
 } from 'typeorm';
-import { IsNotEmpty, IsNumber, Min, Length } from 'class-validator';
+import { IsNotEmpty, IsNumber, Min, Length, IsEnum } from 'class-validator';
 import { Category } from 'src/categories/entities/category.entity';
 import { Entrepreneur } from 'src/entrepreneurs/entities/entrepreneur.entity';
+
+// export enum ProductStatus {
+//   AVAILABLE = 'available',
+//   OUT_OF_STOCK = 'out_of_stock',
+//   DISCONTINUED = 'discontinued',
+// }
+
+
 
 @Entity()
 export class Product {
@@ -31,6 +39,29 @@ export class Product {
   @Min(0, { message: 'El precio no puede ser negativo' })
   price: number;
 
+
+  @Column('text', {nullable: true})
+  image: number;
+
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
+
+
+  @Column()//{
+  //   type: 'enum',
+  //   enum: ProductStatus,
+  //   default: ProductStatus.AVAILABLE,
+  // })
+  // @IsEnum(ProductStatus, { message: 'Status must be one of: available, out_of_stock, discontinued' })
+  @IsNotEmpty({ message: 'Status is required' })
+  status: number;
+
+
+
   @ManyToOne(() => Category, (category) => category.products)
   @JoinColumn({ name: 'category_id' })  // Asegúrate de que el nombre de la columna sea correcto
   category: Category;
@@ -39,9 +70,8 @@ export class Product {
   @JoinColumn({ name: 'entrepreneur_id' })  // Asegúrate de que el nombre de la columna sea correcto
   entrepreneur: Entrepreneur;
 
-  @CreateDateColumn()
-  created_at: Date;
 
-  @UpdateDateColumn()
-  updated_at: Date;
+
+
+
 }

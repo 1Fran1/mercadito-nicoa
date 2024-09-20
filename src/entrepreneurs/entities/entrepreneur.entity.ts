@@ -21,6 +21,12 @@ import { Product } from 'src/products/entities/product.entity';
       message: 'El nombre debe tener entre 3 y 100 caracteres',
     })
     name: string;
+
+
+    @Column('text', {nullable: true})
+    image: number;
+  
+
   
     @Column({ type: 'text', nullable: true })
     @Length(0, 255, {
