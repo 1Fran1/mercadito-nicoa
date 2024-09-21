@@ -39,6 +39,8 @@ export class Product {
   @Min(0, { message: 'El precio no puede ser negativo' })
   price: number;
 
+  @Column('text', {nullable: true})
+  unit: string;
 
   @Column('text', {nullable: true})
   image: string;

@@ -18,9 +18,15 @@ export class CreateProductDto {
   @Min(0, { message: 'El precio no puede ser negativo' })
   price: number;
 
+  @IsOptional()
+  @Length(0, 255, {
+    message: 'Debe poner alguna unidad',
+  })
+  unit?: string;
+
   @IsNotEmpty({ message: 'La categoría del producto es obligatoria' })
   category_id: number;
 
-  @IsOptional()
+  @IsNotEmpty({ message: 'El emprendedor del producto es obligatorio' })
   entrepreneur_id?: number;
 }
