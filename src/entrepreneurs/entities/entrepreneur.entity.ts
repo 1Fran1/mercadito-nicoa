@@ -24,7 +24,7 @@ import { Product } from 'src/products/entities/product.entity';
 
 
     @Column('text', {nullable: true})
-    image: number;
+    image: string;
   
 
   
