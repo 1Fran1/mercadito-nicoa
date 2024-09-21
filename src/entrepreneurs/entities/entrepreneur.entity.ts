@@ -42,5 +42,12 @@ import { Product } from 'src/products/entities/product.entity';
   
     @UpdateDateColumn()
     updated_at: Date;
+
+    
+    @Column()
+      @IsNotEmpty({ message: 'Status is required' })
+      status: number;
+
+
   }
   
