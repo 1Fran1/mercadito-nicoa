@@ -51,7 +51,6 @@ export class UsersService {
   async findAll(): Promise<User[]> {
     try {
       const users = await this.userRepository.find({
-        relations: ['userRole', 'userRole.role'],
       });
       return users;
     } catch (error) {

@@ -12,6 +12,5 @@ export class Role {
   @Column({ nullable: true, length: 255 })
   description: string;
 
-  @OneToOne(() => UserRole, userRole => userRole.role)
-  userRole: UserRole;
+
 }
