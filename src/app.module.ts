@@ -1,6 +1,6 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common'; // Agregar OnModuleInit para ejecutar código en el inicio del módulo
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config'; // Usar ConfigModule para manejar variables de entorno
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -12,14 +12,14 @@ import { UserRoleModule } from './user_role/user_role.module';
 import { RolesModule } from './roles/roles.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
-
+import { Role } from './roles/entities/role.entity'; // Importar la entidad Role
+import { SeedService } from './seeders/seed.service';
 
 @Module({
   imports: [
-    // Cargar variables de entorno
     ConfigModule.forRoot({
-      isGlobal: true, // Hacer las variables de entorno globales para todos los módulos
-      envFilePath: ['.env'], // Ruta al archivo de configuración .env
+      isGlobal: true,
+      envFilePath: ['.env'],
     }),
 
     // Configuración de TypeORM
@@ -34,15 +34,18 @@ import { JwtModule } from '@nestjs/jwt';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
         entities: [join(__dirname, '**', '*.entity.{js,ts}')],
-        synchronize: configService.get<boolean>('DB_SYNCHRONIZE', true), // Manejar sincronización con variable de entorno
+        synchronize: configService.get<boolean>('DB_SYNCHRONIZE', true),
       }),
     }),
+
+    // Registrar el repositorio de la entidad Role para usarlo en SeedService
+    TypeOrmModule.forFeature([Role]),
 
     // Configuración global del JWT
     JwtModule.register({
       global: true,
-      secret: process.env.JWT_SECRET, // Usar la variable de entorno para el secreto
-      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN }, // Configurar la expiración con variable de entorno
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN },
     }),
 
     // Módulos de la aplicación
@@ -55,6 +58,13 @@ import { JwtModule } from '@nestjs/jwt';
     RolesModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, SeedService], // Agregar el SeedService a los providers
 })
-export class AppModule {}
+export class AppModule implements OnModuleInit { // Implementar OnModuleInit para ejecutar el seed
+  constructor(private readonly seedService: SeedService) {}
+
+  async onModuleInit() {
+    // Ejecutar la semilla de roles cuando se inicializa el módulo
+    await this.seedService.seedRoles();
+  }
+}
