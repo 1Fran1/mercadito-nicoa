@@ -13,6 +13,8 @@ import { RolesModule } from './roles/roles.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { Role } from './roles/entities/role.entity'; // Importar la entidad Role
+import { User } from './users/entities/user.entity'; // Importar la entidad Role
+import { UserRole } from './user_role/entities/user_role.entity'; // Importar la entidad Role
 import { SeedService } from './seeders/seed.service';
 
 @Module({
@@ -39,7 +41,7 @@ import { SeedService } from './seeders/seed.service';
     }),
 
     // Registrar el repositorio de la entidad Role para usarlo en SeedService
-    TypeOrmModule.forFeature([Role]),
+    TypeOrmModule.forFeature([Role, User, UserRole]),
 
     // Configuración global del JWT
     JwtModule.register({
