@@ -12,6 +12,13 @@ export class CreateCategoryDto {
     message: 'La descripción puede tener hasta 255 caracteres',
   })
   description?: string;
+
+  @IsOptional()
+  @Length(0, 1, {
+    message: '',
+  })
+  status?: number;
+
 }
 
 export class UpdateCategoryDto {
@@ -21,6 +28,18 @@ export class UpdateCategoryDto {
   })
   name?: string;
 
+  @IsOptional()
+  @Length(0, 255, {
+    message: 'La descripción puede tener hasta 255 caracteres',
+  })
+  description?: string;
+
+  @IsOptional()
+  @Length(0, 1, {
+    message: '',
+  })
+  status?: number;
+
   
 }
-``
+

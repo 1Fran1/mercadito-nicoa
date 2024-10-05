@@ -34,6 +34,10 @@ import { Product } from 'src/products/entities/product.entity';
     })
     description: string;
   
+    @Column()
+    @IsNotEmpty({ message: 'El estado es requisito' })
+    status: number;
+
     @OneToMany(() => Product, (product) => product.category)
     products: Product[];
   
