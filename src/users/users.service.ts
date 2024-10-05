@@ -22,7 +22,7 @@ export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
       const { password, ...userData } = createUserDto;
-
+  
       // Verificar si ya existe un usuario con el mismo email
       const existingUser = await this.userRepository.findOne({
         where: { email: createUserDto.email },
@@ -32,45 +32,46 @@ export class UsersService {
           `User with email ${createUserDto.email} already exists`,
         );
       }
-
+  
       // Encriptar la contraseña
-      const hashedPassword = await bcrypt.hash(password, 10);
-
+      const hashedPassword = await bcrypt.hash(password, 10); // Asegúrate de que esto ocurre solo una vez
+  
       const newUser = this.userRepository.create({
         ...userData,
-        password: hashedPassword,
+        password: hashedPassword, // Guarda la contraseña encriptada
       });
-
+  
       return await this.userRepository.save(newUser);
     } catch (error) {
       throw new InternalServerErrorException('Failed to create user');
     }
   }
+  
 
- // Obtener todos los usuarios
- async findAll(): Promise<User[]> {
+// Obtener todos los usuarios
+async findAll(): Promise<User[]> {
   try {
     const users = await this.userRepository.find({
-      relations: ['userRole', 'userRole.role'],
+      relations: ['userRoles', 'userRoles.role'], // Cargar la relación de muchos a muchos correctamente
     });
     return users;
   } catch (error) {
     throw new InternalServerErrorException('Failed to retrieve users');
-    }
-  }
+  }
+}
 
   // Obtener un usuario por ID
   async findOne(id: number): Promise<User> {
     try {
       const user = await this.userRepository.findOne({
         where: { id },
-        relations: ['userRoles', 'userRoles.role'],
+        relations: ['userRoles', 'userRoles.role'], // Relación muchos a muchos cargando los roles
       });
-
+  
       if (!user) {
         throw new NotFoundException(`User with ID ${id} not found`);
       }
-
+  
       return user;
     } catch (error) {
       throw new InternalServerErrorException('Failed to retrieve the user');
@@ -113,4 +114,13 @@ export class UsersService {
   async findOneByEmail(email: string): Promise<User> {
     return this.userRepository.findOne({ where: { email } });
   }
+
+  // users.service.ts
+async findOneByEmailWithRoles(email: string): Promise<User> {
+  return this.userRepository.findOne({
+    where: { email },
+    relations: ['userRoles', 'userRoles.role'], // Incluye la relación de roles
+  });
 }
+}
+

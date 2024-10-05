@@ -22,8 +22,7 @@ export class User {
   @Column()
   password: string;
 
-  @BeforeInsert()
-  async hashPassword() {
-    this.password = await bcrypt.hash(this.password, 10);
-  }
+  // Relación de uno a muchos con UserRole
+  @OneToMany(() => UserRole, (userRole) => userRole.user)
+  userRoles: UserRole[];
 }

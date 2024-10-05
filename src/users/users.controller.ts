@@ -12,7 +12,7 @@ export class UsersController {
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
     // Verificar si el correo ya está registrado
-    const existingUser = await this.usersService.findOneByEmail(createUserDto.email);
+    const existingUser = await this.usersService.findOneByEmailWithRoles(createUserDto.email);
     if (existingUser) {
       throw new BadRequestException(`El correo ${createUserDto.email} ya está registrado.`);
     }

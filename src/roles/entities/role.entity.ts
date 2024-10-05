@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany} from 'typeorm';
 import { UserRole } from '../../user_role/entities/user_role.entity';
 
 @Entity('roles') // El nombre de la tabla será 'roles'
@@ -12,5 +12,8 @@ export class Role {
   @Column({ nullable: true, length: 255 })
   description: string;
 
+  // Relación de uno a muchos con UserRole
+  @OneToMany(() => UserRole, (userRole) => userRole.role)
+  userRoles: UserRole[];
 
 }

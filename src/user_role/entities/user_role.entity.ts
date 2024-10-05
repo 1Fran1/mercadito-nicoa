@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, OneToOne, JoinColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Column } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Role } from '../../roles/entities/role.entity';
 
@@ -7,14 +7,14 @@ export class UserRole {
   @PrimaryGeneratedColumn()
   id: number;
 
-
-  @OneToOne(() => User)
-  @JoinColumn() 
+  // Relación de muchos a uno con User
+  @ManyToOne(() => User, (user) => user.userRoles)
+  @JoinColumn({ name: 'user_id' }) // La columna user_id en user_roles será la FK hacia User
   user: User;
 
- 
-  @OneToOne(() => Role)
-  @JoinColumn() 
+  // Relación de muchos a uno con Role
+  @ManyToOne(() => Role, (role) => role.userRoles)
+  @JoinColumn({ name: 'role_id' }) // La columna role_id en user_roles será la FK hacia Role
   role: Role;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
