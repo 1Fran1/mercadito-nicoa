@@ -34,6 +34,10 @@ import { Product } from 'src/products/entities/product.entity';
     })
     description: string;
   
+    @Column()
+    @IsNotEmpty({ message: 'El estado es requisito' })
+    status: number;
+
     @OneToMany(() => Product, (product) => product.category)
     products: Product[];
   
@@ -44,14 +48,7 @@ import { Product } from 'src/products/entities/product.entity';
     updated_at: Date;
 
 
-    @Column()//{
-    //   type: 'enum',
-    //   enum: CategoryStatus,
-    //   default: CategoryStatus.ACTIVE,
-    // }
-    // @IsEnum(CategoryStatus, { message: 'Status must be one of: active, inactive' })
-    @IsNotEmpty({ message: 'Status is required' })
-    status: number;
+   
 
 
 
