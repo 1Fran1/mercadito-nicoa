@@ -47,17 +47,17 @@ export class UsersService {
     }
   }
 
-  // Obtener todos los usuarios
-  async findAll(): Promise<User[]> {
-    try {
-      const users = await this.userRepository.find({
-        relations: ['userRoles', 'userRoles.role'],
-      });
-      return users;
-    } catch (error) {
-      throw new InternalServerErrorException('Failed to retrieve users');
-    }
-  }
+ // Obtener todos los usuarios
+ async findAll(): Promise<User[]> {
+  try {
+    const users = await this.userRepository.find({
+      relations: ['userRole', 'userRole.role'],
+    });
+    return users;
+  } catch (error) {
+    throw new InternalServerErrorException('Failed to retrieve users');
+    }
+  }
 
   // Obtener un usuario por ID
   async findOne(id: number): Promise<User> {
