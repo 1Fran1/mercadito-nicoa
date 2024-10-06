@@ -29,7 +29,8 @@ export class SeedService {
         address: 'Oficina',
         phone: '1234567890',
         password: password,
-        role: 'Admin', // Asignación directa del rol como 'admin'
+        role: 'Admin', 
+        status: 1, 
       });
 
       await this.userRepository.save(adminUser);

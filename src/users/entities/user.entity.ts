@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, OneToMany, JoinColumn, OneToOne } from 'typeorm';
+import { IsEnum, IsNotEmpty, Length } from 'class-validator';
 
 
 @Entity('users') // El nombre de la tabla será 'users'
@@ -8,6 +9,12 @@ export class User {
 
   @Column({ length: 100 })
   name: string;
+
+  @Column({ type: 'text', nullable: true })
+  @Length(0, 255, {
+    message: 'La descripción puede tener hasta 255 caracteres',
+  })
+  description?: string;
 
   @Column({ unique: true, length: 100 })
   email: string;
@@ -23,5 +30,12 @@ export class User {
 
   @Column()
   role: string
+
+  @Column('text', {nullable: true})
+  image: string;
+
+  @Column()
+    @IsNotEmpty({ message: 'El estado es requisito' })
+    status: number;
  
 }
