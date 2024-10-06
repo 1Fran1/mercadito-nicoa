@@ -45,7 +45,8 @@ export class AuthService {
     const payload = {
       email: user.email,
       userId: user.id,
-      role: user.role, // Aquí se incluye el rol directamente
+      role: user.role,
+      status: user.status, 
     };
 
     try {
@@ -57,7 +58,8 @@ export class AuthService {
       return {
         token,
         email: user.email,
-        role: user.role, // Devolver el rol como parte de la respuesta
+        role: user.role,
+        status: user.status,
       };
     } catch (error) {
       throw new InternalServerErrorException('Failed to generate JWT');

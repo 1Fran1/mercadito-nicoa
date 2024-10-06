@@ -49,4 +49,9 @@ export class UsersController {
      }
      return { exists: false };
    }
+
+   @Get('entrepreneurs')
+   findAllEntrepreneurs() {
+     return this.usersService.findAllEntrepreneurs();
+   }
 }

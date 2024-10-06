@@ -74,7 +74,10 @@ export class UsersService {
   // Actualizar un usuario
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     try {
-      const user = await this.findOne(id);
+      const user= await this.userRepository.preload({
+        id: id,
+        ...updateUserDto,
+      });
 
       if (updateUserDto.password) {
         // Encriptar la nueva contraseña si se envía en la actualización
@@ -108,4 +111,20 @@ export class UsersService {
   async findOneByEmail(email: string): Promise<User> {
     return this.userRepository.findOne({ where: { email } });
   }
+
+  async findAllEntrepreneurs(): Promise<User[]> {
+    try {
+      const query = this.userRepository.createQueryBuilder('user')
+        .where('user.role = :role', { role: 'Emprendedor' });
+        
+      const entrepreneurs = await query.getMany();
+      console.log('Entrepreneurs found:', entrepreneurs);
+      return entrepreneurs;
+    } catch (error) {
+      console.error('Error al obtener emprendedores:', error.message, error.stack);
+      throw new InternalServerErrorException('Failed to retrieve entrepreneurs');
+    }
+  }
+  
+
 }

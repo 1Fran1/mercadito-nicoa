@@ -64,6 +64,11 @@ export class UpdateUserDto {
   @MinLength(6, { message: 'Password must be at least 6 characters long' })
   password: string;
 
+  @Transform(({ value }) => value.trim())
+  @MinLength(1, { message: 'Role is too short' })
+  @MaxLength(100, { message: 'Role is too long' })
+  role?: string;
+
   @IsOptional()
   @Length(0, 1, {
     message: '',

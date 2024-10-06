@@ -14,6 +14,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: any) {
     // Ahora devuelve el rol como un campo simple en lugar de un arreglo de roles
-    return { userId: payload.userId, email: payload.email, role: payload.role };
+    return { userId: payload.userId, email: payload.email, role: payload.role, status: payload.status };
   }
 }
