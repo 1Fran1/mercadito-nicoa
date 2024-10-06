@@ -29,8 +29,8 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
 
-    // Encuentra el usuario por email e incluye los roles
-    const user = await this.usersService.findOneByEmailWithRoles(email);
+    // Encuentra el usuario por email
+    const user = await this.usersService.findOneByEmail(email);
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
     }
@@ -41,25 +41,23 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    // Crea el payload del JWT incluyendo los roles
+    // Crea el payload del JWT incluyendo el rol directamente
     const payload = {
       email: user.email,
       userId: user.id,
-      userRoles: user.userRoles.map(role => ({
-        roleId: role.role.id,
-        roleName: role.role.name,
-      })),
+      role: user.role, // Aquí se incluye el rol directamente
     };
 
     try {
       const token = await this.jwtService.signAsync(payload, {
         secret: process.env.JWT_SECRET,
-        expiresIn: '1d',
+        expiresIn: '1d', // Duración del token
       });
 
       return {
         token,
         email: user.email,
+        role: user.role, // Devolver el rol como parte de la respuesta
       };
     } catch (error) {
       throw new InternalServerErrorException('Failed to generate JWT');

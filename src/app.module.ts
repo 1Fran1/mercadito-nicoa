@@ -8,13 +8,9 @@ import { ProductModule } from './products/products.module';
 import { CategoryModule } from './categories/categories.module';
 import { EntrepreneurModule } from './entrepreneurs/entrepreneurs.module';
 import { UsersModule } from './users/users.module';
-import { UserRoleModule } from './user_role/user_role.module';
-import { RolesModule } from './roles/roles.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
-import { Role } from './roles/entities/role.entity'; // Importar la entidad Role
 import { User } from './users/entities/user.entity'; // Importar la entidad Role
-import { UserRole } from './user_role/entities/user_role.entity'; // Importar la entidad Role
 import { SeedService } from './seeders/seed.service';
 
 @Module({
@@ -41,7 +37,7 @@ import { SeedService } from './seeders/seed.service';
     }),
 
     // Registrar el repositorio de la entidad Role para usarlo en SeedService
-    TypeOrmModule.forFeature([Role, User, UserRole]),
+    TypeOrmModule.forFeature([User]),
 
     // Configuración global del JWT
     JwtModule.register({
@@ -55,9 +51,7 @@ import { SeedService } from './seeders/seed.service';
     ProductModule,
     CategoryModule,
     EntrepreneurModule,
-    UsersModule,
-    UserRoleModule,
-    RolesModule,
+    UsersModule
   ],
   controllers: [AppController],
   providers: [AppService, SeedService], // Agregar el SeedService a los providers
@@ -67,6 +61,6 @@ export class AppModule implements OnModuleInit { // Implementar OnModuleInit par
 
   async onModuleInit() {
     // Ejecutar la semilla de roles cuando se inicializa el módulo
-    await this.seedService.seedRoles();
+    await this.seedService.seedAdminUser();
   }
 }

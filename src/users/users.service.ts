@@ -46,27 +46,20 @@ export class UsersService {
       throw new InternalServerErrorException('Failed to create user');
     }
   }
-  
 
-// Obtener todos los usuarios
-async findAll(): Promise<User[]> {
-  try {
-    const users = await this.userRepository.find({
-      relations: ['userRoles', 'userRoles.role'], // Cargar la relación de muchos a muchos correctamente
-    });
-    return users;
-  } catch (error) {
-    throw new InternalServerErrorException('Failed to retrieve users');
+  // Obtener todos los usuarios
+  async findAll(): Promise<User[]> {
+    try {
+      return await this.userRepository.find();
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to retrieve users');
+    }
   }
-}
 
   // Obtener un usuario por ID
   async findOne(id: number): Promise<User> {
     try {
-      const user = await this.userRepository.findOne({
-        where: { id },
-        relations: ['userRoles', 'userRoles.role'], // Relación muchos a muchos cargando los roles
-      });
+      const user = await this.userRepository.findOne({ where: { id } });
   
       if (!user) {
         throw new NotFoundException(`User with ID ${id} not found`);
@@ -111,16 +104,8 @@ async findAll(): Promise<User[]> {
     }
   }
 
+  // Encontrar un usuario por email
   async findOneByEmail(email: string): Promise<User> {
     return this.userRepository.findOne({ where: { email } });
   }
-
-  // users.service.ts
-async findOneByEmailWithRoles(email: string): Promise<User> {
-  return this.userRepository.findOne({
-    where: { email },
-    relations: ['userRoles', 'userRoles.role'], // Incluye la relación de roles
-  });
 }
-}
-

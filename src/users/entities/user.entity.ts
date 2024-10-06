@@ -1,6 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, OneToMany, JoinColumn, OneToOne } from 'typeorm';
-import * as bcrypt from 'bcryptjs';
-import { UserRole } from '../../user_role/entities/user_role.entity';
+
 
 @Entity('users') // El nombre de la tabla será 'users'
 export class User {
@@ -22,7 +21,7 @@ export class User {
   @Column()
   password: string;
 
-  // Relación de uno a muchos con UserRole
-  @OneToMany(() => UserRole, (userRole) => userRole.user)
-  userRoles: UserRole[];
+  @Column()
+  role: string
+ 
 }
