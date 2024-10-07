@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { IsNotEmpty, IsNumber, Min, Length, IsEnum } from 'class-validator';
 import { Category } from 'src/categories/entities/category.entity';
-import { Entrepreneur } from 'src/entrepreneurs/entities/entrepreneur.entity';
+import { User } from 'src/users/entities/user.entity';
 
 // export enum ProductStatus {
 //   AVAILABLE = 'available',
@@ -62,15 +62,13 @@ export class Product {
   @IsNotEmpty({ message: 'Status is required' })
   status: number;
 
-
-
   @ManyToOne(() => Category, (category) => category.products)
   @JoinColumn({ name: 'category_id' })  // Asegúrate de que el nombre de la columna sea correcto
   category: Category;
 
-  @ManyToOne(() => Entrepreneur, (entrepreneur) => entrepreneur.products)
-  @JoinColumn({ name: 'entrepreneur_id' })  // Asegúrate de que el nombre de la columna sea correcto
-  entrepreneur: Entrepreneur;
+  @ManyToOne(() => User, (user) => user.products)
+  @JoinColumn({ name: 'user_id' })  // Asegúrate de que el nombre de la columna sea correcto
+  user: User;
 
 
 

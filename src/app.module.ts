@@ -6,7 +6,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ProductModule } from './products/products.module';
 import { CategoryModule } from './categories/categories.module';
-import { EntrepreneurModule } from './entrepreneurs/entrepreneurs.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
@@ -50,7 +49,6 @@ import { SeedService } from './seeders/seed.service';
     AuthModule,
     ProductModule,
     CategoryModule,
-    EntrepreneurModule,
     UsersModule
   ],
   controllers: [AppController],

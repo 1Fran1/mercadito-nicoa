@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, OneToMany, JoinColumn, OneToOne } from 'typeorm';
 import { IsEnum, IsNotEmpty, Length } from 'class-validator';
+import { Product } from 'src/products/entities/product.entity';
 
 
 @Entity('users') // El nombre de la tabla será 'users'
@@ -37,5 +38,8 @@ export class User {
   @Column()
     @IsNotEmpty({ message: 'El estado es requisito' })
     status: number;
+
+  @OneToMany(() => Product, (product) => product.user)
+    products: Product[];
  
 }
