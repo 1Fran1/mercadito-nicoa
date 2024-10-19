@@ -14,6 +14,7 @@ import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { Role } from './roles/entities/role.entity'; // Importar la entidad Role
 import { SeedService } from './seeders/seed.service';
+import { CoursesModule } from './courses/courses.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { SeedService } from './seeders/seed.service';
     UsersModule,
     UserRoleModule,
     RolesModule,
+    CoursesModule,
   ],
   controllers: [AppController],
   providers: [AppService, SeedService], // Agregar el SeedService a los providers
