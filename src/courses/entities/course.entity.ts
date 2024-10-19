@@ -27,6 +27,10 @@ export class Course {
 
   @Column({ type: 'date' })
   endDate: Date;
+
+  @Column()
+    status: number;
+    
   @ManyToOne(() => User, user => user.courses)
   user: User;
 }

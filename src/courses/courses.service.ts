@@ -36,23 +36,40 @@ export class CoursesService {
 }
 
 async findOne(id: number): Promise<Course> {
+ 
   const course = await this.coursesRepository.findOne({ where: { id }, relations: ['user'] });
+  
   if (!course) {
+ 
     throw new NotFoundException(`Course with ID ${id} not found`);
   }
+  
   return course;
 }
 
 
-  async update(id: number, updateCourseDto: UpdateCourseDto): Promise<Course> {
-    const course = await this.coursesRepository.preload({
-      id: id,
-      ...updateCourseDto,
-    });
+async update(id: number, updateCourseDto: UpdateCourseDto): Promise<Course> {
+ 
 
-    if (!course) {
-      throw new NotFoundException(`Course with ID ${id} not found`);
-    }
+  const course = await this.coursesRepository.preload({
+    id: id,
+    ...updateCourseDto,
+  });
+
+  if (!course) {
+    
+    throw new NotFoundException(`Course with ID ${id} not found`);
+  }
+
+  return this.coursesRepository.save(course);
+}
+
+   // Nueva función para actualizar los slots
+   async updateSlots(id: number, slots: number): Promise<Course> {
+    const course = await this.findOne(id);
+
+    // Actualiza solo el campo de slots
+    course.slots = slots;
 
     return this.coursesRepository.save(course);
   }

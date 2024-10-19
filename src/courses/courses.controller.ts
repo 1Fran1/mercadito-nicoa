@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
@@ -24,7 +32,13 @@ export class CoursesController {
 
   @Patch(':id')
   update(@Param('id') id: number, @Body() updateCourseDto: UpdateCourseDto) {
-    return this.coursesService.update(id, updateCourseDto);
+    return this.coursesService.update(+id, updateCourseDto);
+  }
+
+  // Nueva ruta para actualizar solo los slots (cupos disponibles)
+  @Patch(':id/slots')
+  updateSlots(@Param('id') id: number, @Body('slots') slots: number) {
+    return this.coursesService.updateSlots(id, slots);
   }
 
   @Delete(':id')
