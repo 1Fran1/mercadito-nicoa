@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -10,7 +10,13 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
+  async create(@Body() createUserDto: CreateUserDto) {
+    // Verificar si el correo ya está registrado
+    const existingUser = await this.usersService.findOneByEmail(createUserDto.email);
+    if (existingUser) {
+      throw new BadRequestException(`El correo ${createUserDto.email} ya está registrado.`);
+    }
+
     return this.usersService.create(createUserDto);
   }
 
@@ -33,4 +39,19 @@ export class UsersController {
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
   }
+
+   // Nueva ruta para verificar si el correo ya existe
+   @Get('check-email/:email')
+   async checkEmail(@Param('email') email: string) {
+     const user = await this.usersService.findOneByEmail(email);
+     if (user) {
+       return { exists: true };
+     }
+     return { exists: false };
+   }
+
+   @Get('entrepreneurs')
+   findAllEntrepreneurs() {
+     return this.usersService.findAllEntrepreneurs();
+   }
 }

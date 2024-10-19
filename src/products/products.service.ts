@@ -17,16 +17,21 @@ export class ProductService {
  
   async findAll(): Promise<Product[]> {
     return this.productRepository.find({
-      relations: ['entrepreneur', 'category'],
+      relations: ['user', 'category'],
     });
   }
 
 
   async findOne(id: number): Promise<Product> {
-    const product = await this.productRepository.findOne({ where: { product_id: id } });
+    const product = await this.productRepository.findOne({
+      where: { product_id: id },
+      relations: ['user', 'category'], // Incluir las relaciones de usuario y categoría
+    });
+    
     if (!product) {
       throw new NotFoundException(`Producto con ID ${id} no encontrado`);
     }
+    
     return product;
   }
 

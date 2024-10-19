@@ -1,6 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, OneToMany, JoinColumn, OneToOne } from 'typeorm';
-import * as bcrypt from 'bcryptjs';
-import { UserRole } from '../../user_role/entities/user_role.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Product } from 'src/products/entities/product.entity';
+import { Course } from 'src/courses/entities/course.entity'; 
 
 @Entity('users') // El nombre de la tabla será 'users'
 export class User {
@@ -9,6 +9,9 @@ export class User {
 
   @Column({ length: 100 })
   name: string;
+
+  @Column({ type: 'text', nullable: true })
+  description?: string;
 
   @Column({ unique: true, length: 100 })
   email: string;
@@ -22,8 +25,19 @@ export class User {
   @Column()
   password: string;
 
-  @BeforeInsert()
-  async hashPassword() {
-    this.password = await bcrypt.hash(this.password, 10);
-  }
+  @Column()
+  role: string;
+
+  @Column('text', { nullable: true })
+  image: string;
+
+  @Column()
+  status: number;
+
+  @OneToMany(() => Product, (product) => product.user)
+  products: Product[];
+
+  // Relación con Course
+  @OneToMany(() => Course, (course) => course.user)
+  courses: Course[];
 }

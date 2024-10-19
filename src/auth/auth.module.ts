@@ -4,14 +4,12 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { AuthController } from './auth.controller';
-import { UserRoleModule } from '../user_role/user_role.module'; // Asegúrate de importar UserRoleModule
-import { UsersModule } from '../users/users.module'; // Importa también el módulo de usuarios
+import { UsersModule } from '../users/users.module'; // Importa el módulo de usuarios
 
 @Module({
   imports: [
-    UsersModule,
+    UsersModule, // Módulo de usuarios para acceder al servicio de usuarios
     PassportModule,
-    UserRoleModule, // Asegúrate de importar correctamente este módulo
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,

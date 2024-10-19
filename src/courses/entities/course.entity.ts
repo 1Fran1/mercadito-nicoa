@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
-import { User } from './user.entity';
+import { User } from 'src/users/entities/user.entity';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+
 
 @Entity()
 export class Course {
@@ -26,7 +27,6 @@ export class Course {
 
   @Column({ type: 'date' })
   endDate: Date;
-
   @ManyToOne(() => User, user => user.courses)
   user: User;
 }
