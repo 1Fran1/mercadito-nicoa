@@ -1,4 +1,4 @@
-import { Module, OnModuleInit } from '@nestjs/common'; // Agregar OnModuleInit para ejecutar código en el inicio del módulo
+import { Module, OnModuleInit } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'path';
@@ -9,15 +9,21 @@ import { CategoryModule } from './categories/categories.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
-import { User } from './users/entities/user.entity'; // Importar la entidad Role
+import { User } from './users/entities/user.entity';
 import { SeedService } from './seeders/seed.service';
 import { CoursesModule } from './courses/courses.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { MailerModule as MailModule } from './mailer/mailer.module';
+import { NodemailerConfig } from './config/nodemailer.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env'],
+    }),
+    MailerModule.forRootAsync({
+      useClass: NodemailerConfig, // Configuración para el correo usando NodemailerConfig
     }),
 
     // Configuración de TypeORM
@@ -51,17 +57,16 @@ import { CoursesModule } from './courses/courses.module';
     ProductModule,
     CategoryModule,
     CoursesModule,
-    UsersModule
-
+    UsersModule,
+    MailModule,
   ],
   controllers: [AppController],
-  providers: [AppService, SeedService], // Agregar el SeedService a los providers
+  providers: [AppService, SeedService],
 })
-export class AppModule implements OnModuleInit { // Implementar OnModuleInit para ejecutar el seed
+export class AppModule implements OnModuleInit {
   constructor(private readonly seedService: SeedService) {}
 
   async onModuleInit() {
-    // Ejecutar la semilla de roles cuando se inicializa el módulo
     await this.seedService.seedAdminUser();
   }
 }
