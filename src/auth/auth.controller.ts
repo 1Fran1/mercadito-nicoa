@@ -48,6 +48,8 @@ export class AuthController {
     return {
       token: result.token,
       email: result.email,
+      role:result.role,
+      status:result.status,
     };
   }
 }

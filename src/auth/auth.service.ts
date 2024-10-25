@@ -9,7 +9,7 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { MailerService } from '@nestjs-modules/mailer'; 
+import { MailerService } from '@nestjs-modules/mailer';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -37,8 +37,14 @@ export class AuthService {
 
       // Cargar la plantilla HTML desde el archivo
       let emailTemplate = readFileSync(
-        join(process.cwd(), 'src', 'mailer', 'templates', 'activation-email.html'),
-        'utf8'
+        join(
+          process.cwd(),
+          'src',
+          'mailer',
+          'templates',
+          'activation-email.html',
+        ),
+        'utf8',
       );
 
       // Reemplazar los placeholders {{name}} y {{activationUrl}} en la plantilla HTML
@@ -66,52 +72,57 @@ export class AuthService {
     }
   }
 
- // Activar usuario
- async activateUser(token: string) {
-  try {
-    const decodedToken = await this.jwtService.verifyAsync(token, {
-      secret: process.env.JWT_SECRET,
-    });
+  // Activar usuario
+  async activateUser(token: string) {
+    try {
+      const decodedToken = await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_SECRET,
+      });
 
-    const email = decodedToken.email;
-    const user = await this.usersService.findOneByEmail(email);
+      const email = decodedToken.email;
+      const user = await this.usersService.findOneByEmail(email);
 
-    if (!user) {
-      throw new BadRequestException('Usuario no encontrado');
+      if (!user) {
+        throw new BadRequestException('Usuario no encontrado');
+      }
+
+      // Verifica si la cuenta ya está activada
+      if (user.status === 1) {
+        return { message: 'La cuenta ya está activada' }; // Aquí retornamos el mensaje
+      }
+
+      // Si la cuenta no está activada, procede a activarla
+      user.status = 1; // Cambia el estado a 1 (activo)
+      await this.usersService.update(user.id, user);
+
+      return { message: 'Cuenta activada con éxito' };
+    } catch (error) {
+      throw new InternalServerErrorException('Token inválido o expirado');
     }
-
-    // Verifica si la cuenta ya está activada
-    if (user.status === 1) {
-      return { message: 'La cuenta ya está activada' }; // Aquí retornamos el mensaje
-    }
-
-    // Si la cuenta no está activada, procede a activarla
-    user.status = 1; // Cambia el estado a 1 (activo)
-    await this.usersService.update(user.id, user);
-
-    return { message: 'Cuenta activada con éxito' };
-  } catch (error) {
-    throw new InternalServerErrorException('Token inválido o expirado');
   }
-}
 
-  // Inicio de sesión
+  // Login de usuario
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
 
-    // Encuentra el usuario por email
+    // Buscar al usuario por email
     const user = await this.usersService.findOneByEmail(email);
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    // Verifica la contraseña
+    // Verificar si la cuenta está activa
+    if (user.status !== 1) {
+      throw new UnauthorizedException('User account is inactive');
+    }
+
+    // Comparar la contraseña proporcionada con la almacenada en la base de datos
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    // Crea el payload del JWT incluyendo el rol directamente
+    // Crear el payload del JWT
     const payload = {
       email: user.email,
       userId: user.id,
@@ -119,6 +130,7 @@ export class AuthService {
       status: user.status,
     };
 
+    // Generar el token JWT
     try {
       const token = await this.jwtService.signAsync(payload, {
         secret: process.env.JWT_SECRET,
