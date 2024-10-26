@@ -1,6 +1,13 @@
 import { User } from 'src/users/entities/user.entity';
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
-
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  ManyToMany,
+  JoinTable,
+  JoinColumn
+} from 'typeorm';
 
 @Entity()
 export class Course {
@@ -28,17 +35,18 @@ export class Course {
   @Column({ type: 'date' })
   endDate: Date;
 
-  @Column({name:''})
+  @Column()
   status: number;
-    
-  @ManyToOne(() => User, user => user.courses)
- @JoinColumn({name:'instructor'})
+
+  @ManyToOne(() => User, (user) => user.courses)
+  @JoinColumn({ name: 'instructor' })
   user: User;
 
-  @ManyToOne(() => User, user => user.courses)
-  @JoinColumn({name:'student'})
-  student: User;
-
-
-  
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'course_students', // Nombre de la tabla de unión
+    joinColumn: { name: 'course_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'student_id', referencedColumnName: 'id' },
+  })
+  students: User[];
 }
