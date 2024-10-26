@@ -50,8 +50,16 @@ export class CoursesController {
   @Post(':courseId/students')
   addStudentToCourse(
     @Param('courseId') courseId: number,
-    @Body('studentId') studentId: number
+    @Body('studentId') studentId: number,
   ) {
     return this.coursesService.addStudentToCourse(courseId, studentId);
+  }
+
+  @Delete(':courseId/students/:studentId')
+  async removeStudentFromCourse(
+    @Param('courseId') courseId: number,
+    @Param('studentId') studentId: number,
+  ) {
+    return this.coursesService.removeStudentFromCourse(courseId, studentId);
   }
 }

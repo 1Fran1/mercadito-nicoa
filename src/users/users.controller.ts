@@ -3,6 +3,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { Course } from 'src/courses/entities/course.entity';
 
 @Controller('users')
 @ApiTags('users')
@@ -54,4 +55,11 @@ export class UsersController {
    findAllEntrepreneurs() {
      return this.usersService.findAllEntrepreneurs();
    }
+
+    
+  // Nuevo endpoint para obtener cursos inscritos de un usuario
+  @Get(':id/enrolled-courses')
+  async getEnrolledCourses(@Param('id') id: string): Promise<Course[]> {
+    return this.usersService.getEnrolledCourses(+id);
+  }
 }

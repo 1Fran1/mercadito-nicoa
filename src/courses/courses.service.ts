@@ -96,4 +96,30 @@ export class CoursesService {
 
     return this.coursesRepository.save(course);
   }
+
+   // Método para eliminar un estudiante de un curso (desinscripción)
+   async removeStudentFromCourse(courseId: number, studentId: number): Promise<Course> {
+    const course = await this.coursesRepository.findOne({
+      where: { id: courseId },
+      relations: ['students'],
+    });
+  
+    if (!course) {
+      throw new NotFoundException(`Course with ID ${courseId} not found`);
+    }
+  
+    // Encuentra al estudiante en la relación
+    const student = course.students.find((s) => s.id === studentId);
+    if (!student) {
+      throw new NotFoundException(`Student with ID ${studentId} is not enrolled in the course`);
+    }
+  
+    // Elimina la relación en el array de estudiantes
+    course.students = course.students.filter((s) => s.id !== studentId);
+  
+    // Guarda el curso actualizado para que TypeORM elimine la relación en la tabla de unión
+    return this.coursesRepository.save(course);
+  }
+  
+  
 }
