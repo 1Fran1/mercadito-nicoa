@@ -55,11 +55,12 @@ export class CoursesController {
     return this.coursesService.addStudentToCourse(courseId, studentId);
   }
 
-  @Delete(':courseId/students/:studentId')
-  async removeStudentFromCourse(
-    @Param('courseId') courseId: number,
-    @Param('studentId') studentId: number,
-  ) {
-    return this.coursesService.removeStudentFromCourse(courseId, studentId);
-  }
+ // Endpoint para eliminar un estudiante de un curso
+ @Delete(':courseId/students/:studentId')
+ removeStudentFromCourse(
+   @Param('courseId') courseId: number,
+   @Param('studentId') studentId: number,
+ ) {
+   return this.coursesService.removeStudentFromCourse(courseId, studentId);
+ }
 }

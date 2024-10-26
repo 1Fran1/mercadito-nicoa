@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { Course } from './entities/course.entity';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
@@ -14,6 +14,8 @@ export class CoursesService {
 
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+
+    private dataSource: DataSource,
   ) {}
 
   async create(createCourseDto: CreateCourseDto): Promise<Course> {
@@ -97,29 +99,32 @@ export class CoursesService {
     return this.coursesRepository.save(course);
   }
 
-   // Método para eliminar un estudiante de un curso (desinscripción)
-   async removeStudentFromCourse(courseId: number, studentId: number): Promise<Course> {
+  // Método para eliminar un estudiante de un curso (desinscripción)
+  async removeStudentFromCourse(courseId: number, studentId: number): Promise<void> {
     const course = await this.coursesRepository.findOne({
       where: { id: courseId },
       relations: ['students'],
     });
-  
+
     if (!course) {
       throw new NotFoundException(`Course with ID ${courseId} not found`);
     }
-  
-    // Encuentra al estudiante en la relación
-    const student = course.students.find((s) => s.id === studentId);
+
+    const student = await this.usersRepository.findOne({ where: { id: studentId } });
     if (!student) {
-      throw new NotFoundException(`Student with ID ${studentId} is not enrolled in the course`);
+      throw new NotFoundException(`Student with ID ${studentId} not found`);
     }
-  
-    // Elimina la relación en el array de estudiantes
-    course.students = course.students.filter((s) => s.id !== studentId);
-  
-    // Guarda el curso actualizado para que TypeORM elimine la relación en la tabla de unión
-    return this.coursesRepository.save(course);
+
+    // Eliminar el registro en la tabla intermedia `course_students` usando QueryBuilder de DataSource
+    await this.dataSource
+      .createQueryBuilder()
+      .delete()
+      .from('course_students')
+      .where('course_id = :courseId', { courseId })
+      .andWhere('student_id = :studentId', { studentId })
+      .execute();
   }
-  
-  
 }
+
+  
+
