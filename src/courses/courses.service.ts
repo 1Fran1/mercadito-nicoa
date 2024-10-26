@@ -17,7 +17,7 @@ export class CoursesService {
   ) {}
 
   async create(createCourseDto: CreateCourseDto): Promise<Course> {
-    const user = await this.usersRepository.findOne({ where: { id: createCourseDto.userId } });
+    const user = await this.usersRepository.findOne({ where: { id: createCourseDto.instructorId } });
     if (!user) {
       throw new NotFoundException('User not found');
     }

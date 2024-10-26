@@ -39,7 +39,15 @@ export class UpdateCourseDto  {
 
   @IsNumber()
   @IsNotEmpty()
-  userId: number; 
+  instructorId: number; 
+
+
+
+  @IsNumber()
+  @IsNotEmpty()
+  studentId: number; 
+
+
 
 
 }
