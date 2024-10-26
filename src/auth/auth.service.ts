@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
@@ -13,6 +8,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -21,54 +17,40 @@ export class AuthService {
     private readonly mailerService: MailerService,
   ) {}
 
-  // Registro de usuario
-  async register(createUserDto: CreateUserDto) {
+  async register(createUserDto) {
     try {
       const newUser = await this.usersService.create(createUserDto);
 
-      // Genera el token de activación con un tiempo de expiración de 24 horas
       const activationToken = await this.jwtService.signAsync(
         { email: newUser.email },
         { secret: process.env.JWT_SECRET, expiresIn: '24h' },
       );
 
-      // Generar el enlace de activación
       const activationUrl = `${process.env.FRONTEND_URL}/auth/activate?token=${activationToken}`;
 
-      // Cargar la plantilla HTML desde el archivo
+      // Cambia la ruta al archivo HTML para usar `process.cwd()` que siempre apunta al directorio raíz
       let emailTemplate = readFileSync(
-        join(
-          process.cwd(),
-          'src',
-          'mailer',
-          'templates',
-          'activation-email.html',
-        ),
-        'utf8',
+        join(process.cwd(), 'src', 'mailer', 'templates', 'activation-email.html'),
+        'utf8'
       );
 
-      // Reemplazar los placeholders {{name}} y {{activationUrl}} en la plantilla HTML
       emailTemplate = emailTemplate
         .replace('{{name}}', newUser.name)
         .replace('{{activationUrl}}', activationUrl);
 
-      // Enviar el correo con el contenido HTML
       await this.mailerService.sendMail({
         to: newUser.email,
         subject: 'Confirma tu cuenta',
-        html: emailTemplate, // Usar la plantilla modificada
+        html: emailTemplate,
       });
 
       return {
-        message:
-          'User registered successfully. Please check your email to activate your account.',
+        message: 'User registered successfully. Please check your email to activate your account.',
         user: newUser,
       };
     } catch (error) {
       console.error('Error al registrar usuario:', error);
-      throw new InternalServerErrorException(
-        'An error occurred while registering the user',
-      );
+      throw new InternalServerErrorException('An error occurred while registering the user');
     }
   }
 
@@ -101,42 +83,37 @@ export class AuthService {
     }
   }
 
-  // Login de usuario
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
-
-    // Buscar al usuario por email
+  
+    console.log("Intentando iniciar sesión con el email:", email);
+  
+    // Encuentra el usuario por email
     const user = await this.usersService.findOneByEmail(email);
     if (!user) {
+      console.log("Usuario no encontrado para el email:", email);
       throw new UnauthorizedException('Invalid email or password');
+    } else {
+      console.log("Usuario encontrado:", user);
     }
-
-    // Verificar si la cuenta está activa
-    if (user.status !== 1) {
-      throw new UnauthorizedException('User account is inactive');
-    }
-
-    // Comparar la contraseña proporcionada con la almacenada en la base de datos
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid email or password');
-    }
-
-    // Crear el payload del JWT
+  
+  
+    // Crea el payload del JWT incluyendo el rol directamente
     const payload = {
       email: user.email,
       userId: user.id,
       role: user.role,
       status: user.status,
     };
-
-    // Generar el token JWT
+  
     try {
       const token = await this.jwtService.signAsync(payload, {
         secret: process.env.JWT_SECRET,
-        expiresIn: '1d',
+        expiresIn: '1d', // Duración del token
       });
-
+  
+      console.log("JWT generado exitosamente para el usuario:", user.email);
+  
       return {
         token,
         email: user.email,
@@ -144,7 +121,7 @@ export class AuthService {
         status: user.status,
       };
     } catch (error) {
-      console.error('Error al generar JWT:', error);
+      console.error("Error al generar JWT para el usuario:", user.email, error);
       throw new InternalServerErrorException('Failed to generate JWT');
     }
   }

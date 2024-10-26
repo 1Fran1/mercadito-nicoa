@@ -1,8 +1,17 @@
-import { Body, Controller, Post, HttpCode, HttpStatus, Get, Query, BadRequestException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  HttpCode,
+  HttpStatus,
+  Get,
+  Query,
+  BadRequestException,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
-import { ApiTags } from '@nestjs/swagger'; // Para documentación con Swagger (opcional)
+import { ApiTags } from '@nestjs/swagger';
 import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
@@ -16,14 +25,18 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() createUserDto: CreateUserDto) {
-    const result = await this.authService.register(createUserDto);
-    return {
-      message: result.message,
-      user: result.user,
-    };
+    try {
+      const result = await this.authService.register(createUserDto);
+      return {
+        message: result.message,
+        user: result.user,
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Failed to register user');
+    }
   }
 
- // Activar cuenta de usuario
+ // Activar cuenta de usuario (POST)
  @Post('activate')
  @HttpCode(HttpStatus.OK)
  async activateAccount(@Body('token') token: string) {
@@ -39,17 +52,20 @@ export class AuthController {
    }
  }
 
-
   // Inicio de sesión
   @Post('login')
-  @HttpCode(HttpStatus.OK) // Establece el código de estado HTTP 200
+  @HttpCode(HttpStatus.OK)
   async login(@Body() loginDto: LoginDto) {
-    const result = await this.authService.login(loginDto);
-    return {
-      token: result.token,
-      email: result.email,
-      role:result.role,
-      status:result.status,
-    };
+    try {
+      const result = await this.authService.login(loginDto);
+      return {
+        token: result.token,
+        email: result.email,
+        role: result.role,
+        status: result.status,
+      };
+    } catch (error) {
+      throw new BadRequestException('Invalid email or password');
+    }
   }
 }
