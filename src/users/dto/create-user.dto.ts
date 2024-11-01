@@ -34,4 +34,8 @@ export class CreateUserDto {
     message: '',
   })
   status?: number;
+
+   // Campo para el token de reCAPTCHA
+   @IsString({ message: 'reCAPTCHA token is required' })
+   recaptchaToken: string;
 }
