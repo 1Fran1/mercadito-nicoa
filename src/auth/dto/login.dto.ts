@@ -1,5 +1,5 @@
 import { Transform } from "class-transformer";
-import { IsString, IsEmail, MinLength, IsNotEmpty } from "class-validator";
+import { IsString, IsEmail, MinLength } from "class-validator";
 
 export class LoginDto {
     @IsEmail()
@@ -9,9 +9,4 @@ export class LoginDto {
     @IsString()
     @MinLength(6)
     password: string;
-
-    @IsString()
-    @IsNotEmpty()
-    recaptchaToken: string;
 }
-

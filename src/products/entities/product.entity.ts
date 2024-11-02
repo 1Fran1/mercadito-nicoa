@@ -11,12 +11,6 @@ import { IsNotEmpty, IsNumber, Min, Length, IsEnum } from 'class-validator';
 import { Category } from 'src/categories/entities/category.entity';
 import { User } from 'src/users/entities/user.entity';
 
-// export enum ProductStatus {
-//   AVAILABLE = 'available',
-//   OUT_OF_STOCK = 'out_of_stock',
-//   DISCONTINUED = 'discontinued',
-// }
-
 
 
 @Entity()
@@ -54,11 +48,6 @@ export class Product {
 
 
   @Column()//{
-  //   type: 'enum',
-  //   enum: ProductStatus,
-  //   default: ProductStatus.AVAILABLE,
-  // })
-  // @IsEnum(ProductStatus, { message: 'Status must be one of: available, out_of_stock, discontinued' })
   @IsNotEmpty({ message: 'Status is required' })
   status: number;
 

@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Product } from 'src/products/entities/product.entity';
 import { Course } from 'src/courses/entities/course.entity'; 
+import { Order } from 'src/order/entities/order.entity'; 
 
 @Entity('users') // El nombre de la tabla será 'users'
 export class User {
@@ -40,4 +41,8 @@ export class User {
   // Relación con Course
   @OneToMany(() => Course, (course) => course.user)
   courses: Course[];
+
+  // Relación con Order (nuevo)
+  @OneToMany(() => Order, (order) => order.user)
+  orders: Order[];
 }

@@ -55,13 +55,9 @@ export class AuthController {
   // Inicio de sesión
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(
-    @Body() loginDto: LoginDto, 
-    @Body('recaptchaToken') recaptchaToken: string // Recibe el token de reCAPTCHA desde el frontend
-  ) {
+  async login(@Body() loginDto: LoginDto) {
     try {
-      // Pasa el `recaptchaToken` al servicio para validarlo antes de continuar
-      const result = await this.authService.login(loginDto, recaptchaToken);
+      const result = await this.authService.login(loginDto);
       return {
         token: result.token,
         email: result.email,
