@@ -6,11 +6,12 @@ import {
   HttpStatus,
   Get,
   Query,
-  BadRequestException,
+  BadRequestException, UnauthorizedException
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
+
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtService } from '@nestjs/jwt';
 
@@ -24,9 +25,9 @@ export class AuthController {
   // Registro de usuario
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  async register(@Body() createUserDto: CreateUserDto) {
+  async register(@Body()   registerDto: RegisterDto,) {
     try {
-      const result = await this.authService.register(createUserDto);
+      const result = await this.authService.register(registerDto);
       return {
         message: result.message,
         user: result.user,
@@ -52,20 +53,25 @@ export class AuthController {
    }
  }
 
-  // Inicio de sesión
-  @Post('login')
-  @HttpCode(HttpStatus.OK)
-  async login(@Body() loginDto: LoginDto) {
-    try {
-      const result = await this.authService.login(loginDto);
-      return {
-        token: result.token,
-        email: result.email,
-        role: result.role,
-        status: result.status,
-      };
-    } catch (error) {
-      throw new BadRequestException('Invalid email or password');
-    }
-  }
+ // Inicio de sesión
+ @Post('login')
+ @HttpCode(HttpStatus.OK)
+ async login(
+   @Body() loginDto: LoginDto, 
+   @Body('recaptchaToken') recaptchaToken: string // Recibe el token de reCAPTCHA desde el frontend
+ ) {
+   try {
+     // Pasa el `recaptchaToken` al servicio para validarlo antes de continuar
+     const result = await this.authService.login(loginDto, recaptchaToken);
+     return {
+       token: result.token,
+       email: result.email,
+       role: result.role,
+       status: result.status,
+     };
+   } catch (error) {
+     throw new BadRequestException('Invalid email or password');
+   }
+ }
+
 }

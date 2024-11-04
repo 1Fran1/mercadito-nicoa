@@ -22,32 +22,8 @@ export class UsersService {
   ) {}
 
   // Crear un nuevo usuario
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    try {
-      const { password, ...userData } = createUserDto;
-
-      // Verificar si ya existe un usuario con el mismo email
-      const existingUser = await this.userRepository.findOne({
-        where: { email: createUserDto.email },
-      });
-      if (existingUser) {
-        throw new BadRequestException(
-          `User with email ${createUserDto.email} already exists`,
-        );
-      }
-
-      // Encriptar la contraseña
-      const hashedPassword = await bcrypt.hash(password, 10); // Asegúrate de que esto ocurre solo una vez
-
-      const newUser = this.userRepository.create({
-        ...userData,
-        password: hashedPassword, // Guarda la contraseña encriptada
-      });
-
-      return await this.userRepository.save(newUser);
-    } catch (error) {
-      throw new InternalServerErrorException('Failed to create user');
-    }
+  create(createUserDto: CreateUserDto) {
+    return this.userRepository.save(createUserDto);
   }
 
   // Obtener todos los usuarios

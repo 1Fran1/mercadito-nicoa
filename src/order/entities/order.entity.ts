@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Product } from 'src/products/entities/product.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity('order')
 export class Order {
@@ -39,7 +40,12 @@ export class OrderItem {
   @JoinColumn({ name: 'product_id' })
   product: Product;
 
-  @ManyToOne(() => Order, (order) => order.items, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'order_id' }) // Asegúrate de que el nombre de la columna coincida con el de la base de datos
+  @ManyToOne(() => User, { nullable: false }) // Relación con el usuario emprendedor
+  @JoinColumn({ name: 'user_id' })
+  user: User;
+
+  @ManyToOne(() => Order, (order) => order.items, { onDelete: 'CASCADE', eager: false })
+  @JoinColumn({ name: 'order_id' })
+  @Exclude() // Excluye `order` al serializar a JSON
   order: Order;
 }

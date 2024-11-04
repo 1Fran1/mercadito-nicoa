@@ -1,13 +1,21 @@
-import { BadRequestException, Injectable, UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
+import { 
+  BadRequestException, 
+  Injectable, 
+  UnauthorizedException, 
+  InternalServerErrorException 
+} from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { MailerService } from '@nestjs-modules/mailer';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-
+import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -15,11 +23,24 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly mailerService: MailerService,
+    private readonly configService: ConfigService,
   ) {}
 
-  async register(createUserDto) {
+  // Registro y envío de correo de activación
+  async register(registerDto: RegisterDto) {
+    
+
     try {
-      const newUser = await this.usersService.create(createUserDto);
+      const existingUser = await this.usersService.findOneByEmail(registerDto.email);
+      if (existingUser) {
+        throw new BadRequestException('User already exists');
+      }
+
+      // Encriptar contraseña y crear usuario
+      const newUser = await this.usersService.create({
+        ...registerDto,
+        password: await bcrypt.hash(registerDto.password, 10),
+      });
 
       const activationToken = await this.jwtService.signAsync(
         { email: newUser.email },
@@ -28,7 +49,7 @@ export class AuthService {
 
       const activationUrl = `${process.env.FRONTEND_URL}/auth/activate?token=${activationToken}`;
 
-      // Cambia la ruta al archivo HTML para usar `process.cwd()` que siempre apunta al directorio raíz
+      // Cargar y adaptar plantilla de correo
       let emailTemplate = readFileSync(
         join(process.cwd(), 'src', 'mailer', 'templates', 'activation-email.html'),
         'utf8'
@@ -54,7 +75,7 @@ export class AuthService {
     }
   }
 
-  // Activar usuario
+  // Activación de cuenta
   async activateUser(token: string) {
     try {
       const decodedToken = await this.jwtService.verifyAsync(token, {
@@ -68,13 +89,11 @@ export class AuthService {
         throw new BadRequestException('Usuario no encontrado');
       }
 
-      // Verifica si la cuenta ya está activada
       if (user.status === 1) {
-        return { message: 'La cuenta ya está activada' }; // Aquí retornamos el mensaje
+        return { message: 'La cuenta ya está activada' };
       }
 
-      // Si la cuenta no está activada, procede a activarla
-      user.status = 1; // Cambia el estado a 1 (activo)
+      user.status = 1; // Activa la cuenta
       await this.usersService.update(user.id, user);
 
       return { message: 'Cuenta activada con éxito' };
@@ -83,12 +102,40 @@ export class AuthService {
     }
   }
 
-  async login(loginDto: LoginDto) {
+  async validateRecaptcha(recaptchaToken: string): Promise<void> {
+    const secretKey = this.configService.get<string>('RECAPTCHA_SECRET_KEY');
+    const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${recaptchaToken}`;
+  
+    try {
+      const { data } = await axios.post(url);
+      console.log("Respuesta de reCAPTCHA:", data);
+  
+      if (!data.success) {
+        console.error("Error en la respuesta de reCAPTCHA:", data["error-codes"]);
+        throw new BadRequestException('Falló la validación de reCAPTCHA');
+      }
+    } catch (error) {
+      console.error("Error en la validación de reCAPTCHA:", error);
+      throw new BadRequestException('Error validando reCAPTCHA');
+    }
+  }
+
+
+
+  async login(loginDto: LoginDto, recaptchaToken: string) {
+    // Valida el reCAPTCHA
+    try {
+      await this.validateRecaptcha(recaptchaToken);
+   
+    } catch (error) {
+      console.error("Error en la validación de reCAPTCHA:", error);
+      throw new BadRequestException('Falló la validación de reCAPTCHA');
+    }
+  
     const { email, password } = loginDto;
+   
   
-    console.log("Intentando iniciar sesión con el email:", email);
-  
-    // Encuentra el usuario por email
+    // Busca el usuario por email
     const user = await this.usersService.findOneByEmail(email);
     if (!user) {
       console.log("Usuario no encontrado para el email:", email);
@@ -97,8 +144,16 @@ export class AuthService {
       console.log("Usuario encontrado:", user);
     }
   
+    // Verifica la contraseña
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      console.log("Contraseña inválida para el usuario:", email);
+      throw new UnauthorizedException('Invalid email or password');
+    } else {
+      console.log("Contraseña válida para el usuario:", email);
+    }
   
-    // Crea el payload del JWT incluyendo el rol directamente
+    // Crea el payload del JWT
     const payload = {
       email: user.email,
       userId: user.id,
@@ -106,13 +161,13 @@ export class AuthService {
       status: user.status,
     };
   
+    // Genera el token JWT
     try {
       const token = await this.jwtService.signAsync(payload, {
         secret: process.env.JWT_SECRET,
-        expiresIn: '1d', // Duración del token
+        expiresIn: '1h',
       });
-  
-      console.log("JWT generado exitosamente para el usuario:", user.email);
+
   
       return {
         token,
