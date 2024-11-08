@@ -6,7 +6,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { Product } from 'src/products/entities/product.entity';
 import { User } from 'src/users/entities/user.entity';
 import { OrderResponseDto } from './dto/order-response.dto';
-import { plainToClass } from 'class-transformer';
+import { plainToClass, classToPlain } from 'class-transformer';
 
 @Injectable()
 export class OrdersService {
@@ -65,6 +65,19 @@ export class OrdersService {
     order.total_price = items.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
   
     return this.ordersRepository.save(order);
+  }
+
+  async findAllOrders(): Promise<OrderResponseDto[]> {
+    const orders = await this.ordersRepository.find({
+      relations: ['items', 'items.product', 'items.product.user', 'user'],
+    });
+  
+    if (!orders.length) {
+      throw new NotFoundException('No orders found');
+    }
+  
+    // Convertir cada Order en un JSON plano que incluya todas las relaciones
+    return classToPlain(orders) as OrderResponseDto[];
   }
   
   

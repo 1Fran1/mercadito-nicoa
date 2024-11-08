@@ -13,6 +13,12 @@ export class OrdersController {
     return this.ordersService.create(userId, { items });
   }
 
+  // Nuevo endpoint para obtener todas las órdenes
+  @Get()
+  async getAllOrders() {
+    return this.ordersService.findAllOrders();
+  }
+
   @Get('user/:userId')
   async getOrdersByUserId(@Param('userId', ParseIntPipe) userId: number) {
     return this.ordersService.findOrdersByUserId(userId);

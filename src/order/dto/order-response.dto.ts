@@ -1,33 +1,23 @@
 import { Expose, Type } from 'class-transformer';
+import { ProductResponseDto } from '../../products/dto/product-response.dto';
 
-// DTO para el producto en el OrderItem
-export class ProductDto {
+
+// DTO para el usuario en la orden
+export class UserDto {
   @Expose()
-  product_id: number;
+  id: number;
 
   @Expose()
   name: string;
 
   @Expose()
-  description: string;
+  email: string;
 
   @Expose()
-  price: string;
+  phone: string;
 
   @Expose()
-  unit: string;
-
-  @Expose()
-  image: string;
-
-  @Expose()
-  created_at: Date;
-
-  @Expose()
-  updated_at: Date;
-
-  @Expose()
-  status: number;
+  address: string;
 }
 
 // DTO para cada item en la orden
@@ -42,8 +32,8 @@ export class OrderItemDto {
   unit_price: number;
 
   @Expose()
-  @Type(() => ProductDto) // Asegura que el producto se transforme en un objeto ProductDto
-  product: ProductDto;
+  @Type(() => ProductResponseDto) // Usa ProductResponseDto para el producto
+  product: ProductResponseDto;
 }
 
 // DTO principal para la orden completa
@@ -59,6 +49,10 @@ export class OrderResponseDto {
 
   @Expose()
   updated_at: Date;
+
+  @Expose()
+  @Type(() => UserDto) // Asegura que el usuario se transforme en un objeto UserDto
+  user: UserDto;
 
   @Expose()
   @Type(() => OrderItemDto) // Asegura que los items se transformen en objetos OrderItemDto

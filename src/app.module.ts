@@ -16,6 +16,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { MailerModule as MailModule } from './mailer/mailer.module';
 import { NodemailerConfig } from './config/nodemailer.config';
 import { OrdersModule } from './order/order.module';
+import { ContactModule } from './Contacts/contacts.module';
 
 @Module({
   imports: [
@@ -60,7 +61,8 @@ import { OrdersModule } from './order/order.module';
     CoursesModule,
     UsersModule,
     MailModule,
-    OrdersModule
+    OrdersModule,
+    ContactModule
   ],
   controllers: [AppController],
   providers: [AppService, SeedService],
