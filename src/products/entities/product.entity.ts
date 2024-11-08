@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
   JoinColumn
 } from 'typeorm';
-import { IsNotEmpty, IsNumber, Min, Length, IsEnum } from 'class-validator';
+import { IsNotEmpty, IsNumber, Min, Length, IsEnum, Max } from 'class-validator';
 import { Category } from 'src/categories/entities/category.entity';
 import { User } from 'src/users/entities/user.entity';
 
@@ -38,6 +38,12 @@ export class Product {
 
   @Column('text', {nullable: true})
   image: string;
+
+  @Column({ type: 'int', default: 1 })
+  @IsNumber({}, { message: 'Los puntos de publicidad deben ser un número' })
+  @Min(1, { message: 'Los puntos de publicidad deben ser al menos 1' })
+  @Max(5, { message: 'Los puntos de publicidad no pueden superar 5' })
+  advertisementPoints: number;
 
 
   @CreateDateColumn()

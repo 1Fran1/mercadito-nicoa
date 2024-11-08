@@ -1,4 +1,4 @@
-import {IsString, IsNotEmpty, IsOptional, IsNumber, IsDate, Length  } from 'class-validator';
+import {IsString, IsNotEmpty, IsOptional, IsNumber, IsDate, Length, Min, Max  } from 'class-validator';
 
 
 export class UpdateCourseDto  {
@@ -36,6 +36,12 @@ export class UpdateCourseDto  {
     message: '',
   })
   status?: number;
+
+  @IsOptional()
+  @IsNumber({}, { message: 'Los puntos de publicidad deben ser un número' })
+  @Min(1, { message: 'Los puntos de publicidad deben ser al menos 1' })
+  @Max(5, { message: 'Los puntos de publicidad no pueden superar 5' })
+  advertisementPoints?: number;
 
   @IsNumber()
   @IsNotEmpty()

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, Min, Length, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsNumber, Min, Length, IsOptional, Max } from 'class-validator';
 
 export class CreateProductDto {
   @IsNotEmpty({ message: 'El nombre del producto es obligatorio' })
@@ -23,6 +23,12 @@ export class CreateProductDto {
     message: 'Debe poner alguna unidad',
   })
   unit?: string;
+
+  @IsOptional()
+  @IsNumber({}, { message: 'Los puntos de publicidad deben ser un número' })
+  @Min(1, { message: 'Los puntos de publicidad deben ser al menos 1' })
+  @Max(5, { message: 'Los puntos de publicidad no pueden superar 5' })
+  advertisementPoints?: number;
 
   @IsNotEmpty({ message: 'La categoría del producto es obligatoria' })
   category_id: number;
@@ -54,6 +60,12 @@ export class updateProductDto {
     message: 'Debe poner alguna unidad',
   })
   unit?: string;
+
+  @IsOptional()
+  @IsNumber({}, { message: 'Los puntos de publicidad deben ser un número' })
+  @Min(1, { message: 'Los puntos de publicidad deben ser al menos 1' })
+  @Max(5, { message: 'Los puntos de publicidad no pueden superar 5' })
+  advertisementPoints?: number;
 
   @IsNotEmpty({ message: 'La categoría del producto es obligatoria' })
   category_id: number;

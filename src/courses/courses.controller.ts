@@ -5,12 +5,13 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
+  Delete, HttpCode, ParseIntPipe
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { ApiTags } from '@nestjs/swagger';
+import {User} from '../users/entities/user.entity'
 
 @Controller('courses')
 @ApiTags('Courses')
@@ -57,10 +58,16 @@ export class CoursesController {
 
  // Endpoint para eliminar un estudiante de un curso
  @Delete(':courseId/students/:studentId')
- removeStudentFromCourse(
-   @Param('courseId') courseId: number,
-   @Param('studentId') studentId: number,
- ) {
-   return this.coursesService.removeStudentFromCourse(courseId, studentId);
+  @HttpCode(204)
+  async removeStudent(
+    @Param('courseId', ParseIntPipe) courseId: number,
+    @Param('studentId', ParseIntPipe) studentId: number,
+  ): Promise<void> {
+    await this.coursesService.removeStudentFromCourse(courseId, studentId);
+  }
+
+ @Get(':id/students')
+ async getStudentsByCourse(@Param('id') id: number): Promise<User[]> {
+   return this.coursesService.getStudentsByCourse(id);
  }
 }

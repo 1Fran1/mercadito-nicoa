@@ -124,6 +124,20 @@ export class CoursesService {
       .andWhere('student_id = :studentId', { studentId })
       .execute();
   }
+
+ // Método para obtener los estudiantes de un curso específico
+ async getStudentsByCourse(courseId: number): Promise<User[]> {
+  const course = await this.coursesRepository.findOne({
+    where: { id: courseId },
+    relations: ['students'], // Cargar la relación de estudiantes
+  });
+
+  if (!course) {
+    throw new NotFoundException(`Course with ID ${courseId} not found`);
+  }
+
+  return course.students;
+}
 }
 
   

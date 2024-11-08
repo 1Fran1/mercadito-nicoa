@@ -6,8 +6,9 @@ import {
   ManyToOne,
   ManyToMany,
   JoinTable,
-  JoinColumn
+  JoinColumn, 
 } from 'typeorm';
+import { IsNumber, Min, Max } from 'class-validator';
 
 @Entity()
 export class Course {
@@ -37,6 +38,12 @@ export class Course {
 
   @Column()
   status: number;
+
+  @Column({ type: 'int', default: 1 })
+  @IsNumber({}, { message: 'Los puntos de publicidad deben ser un número' })
+  @Min(1, { message: 'Los puntos de publicidad deben ser al menos 1' })
+  @Max(5, { message: 'Los puntos de publicidad no pueden superar 5' })
+  advertisementPoints: number;
 
   @ManyToOne(() => User, (user) => user.courses)
   @JoinColumn({ name: 'instructor' })
