@@ -4,28 +4,22 @@ import {
   Post,
   HttpCode,
   HttpStatus,
-  Get,
-  Query,
-  BadRequestException, UnauthorizedException
+  BadRequestException
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
-@ApiTags('auth') // Para agregar etiquetas en Swagger, opcional
+@ApiTags('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService,
-    private readonly jwtService: JwtService
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   // Registro de usuario
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  async register(@Body()   registerDto: RegisterDto,) {
+  async register(@Body() registerDto: RegisterDto) {
     try {
       const result = await this.authService.register(registerDto);
       return {
@@ -37,22 +31,19 @@ export class AuthController {
     }
   }
 
- // Activar cuenta de usuario (POST)
- @Post('activate')
- @HttpCode(HttpStatus.OK)
- async activateAccount(@Body('token') token: string) {
-   try {
-     const decoded = await this.jwtService.verifyAsync(token, {
-       secret: process.env.JWT_SECRET,
-     });
+  // Activar cuenta de usuario
+  @Post('activate')
+  @HttpCode(HttpStatus.OK)
+  async activateAccount(@Body('token') token: string) {
+    try {
+      const user = await this.authService.activateUser(token);
+      return { message: user.message };
+    } catch (error) {
+      throw new BadRequestException('Invalid or expired token');
+    }
+  }
 
-     const user = await this.authService.activateUser(token);
-     return { message: user.message };
-   } catch (error) {
-     throw new BadRequestException('Invalid or expired token');
-   }
- }
-
+  // Inicio de sesión con reCAPTCHA
  // Inicio de sesión
  @Post('login')
  @HttpCode(HttpStatus.OK)
@@ -73,5 +64,4 @@ export class AuthController {
      throw new BadRequestException('Invalid email or password');
    }
  }
-
 }

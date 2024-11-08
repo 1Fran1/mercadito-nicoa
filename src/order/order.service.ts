@@ -72,11 +72,11 @@ export class OrdersService {
       relations: ['items', 'items.product', 'items.product.user', 'user'],
     });
   
+    // En lugar de lanzar una excepción, devolvemos un arreglo vacío si no hay órdenes
     if (!orders.length) {
-      throw new NotFoundException('No orders found');
+      return []; // Devuelve un arreglo vacío si no hay órdenes
     }
   
-    // Convertir cada Order en un JSON plano que incluya todas las relaciones
     return classToPlain(orders) as OrderResponseDto[];
   }
   
